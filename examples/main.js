@@ -1,8 +1,16 @@
 import "./style.css";
-import { Elm } from "./src/Main.elm";
+import {Elm as FORM} from "./src/Form.elm";
+import {Elm as WINDOW} from "./src/Window.elm";
 
-const root = document.querySelector("#app div");
-const app = Elm.Main.init({
-  node: root,
-  flags: { searchParams: [...new URL(location.href).searchParams] },
-});
+const window_ = document.querySelector("#window div");
+const form_ = document.querySelector("#form div");
+const apps = [
+  WINDOW.Window.init({
+    node: window_,
+    flags: { window },
+  }),
+  FORM.Form.init({
+    node: form_,
+    flags: { searchParams: [...new URL(location.href).searchParams] },
+  }),
+];

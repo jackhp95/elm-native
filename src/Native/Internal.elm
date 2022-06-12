@@ -40,7 +40,11 @@ type Data native a
 type alias Pipe native a b =
     Data native (a -> b) -> Data native b
 
-type Persist = Persist JD.Value
+
+type Persist
+    = Persist JD.Value
+
+
 
 -- ---------- --
 -- Structures --
@@ -209,7 +213,6 @@ lazy fn =
 value : Data Window Persist
 value =
     Data (JD.map Persist JD.value)
-        
 
 
 null : a -> Data native a

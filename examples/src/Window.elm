@@ -49,7 +49,7 @@ view : Model -> Html Msg
 view model =
     Html.form []
         [ button
-            [ class "flex flex-wrap"
+            [ class "flex flex-wrap m-4 p-4 bg-gray-200 rounded-xl"
             , type_ "button"
             , Native.on "click" (Window.window windowExample) GotWindow
             ]
@@ -142,7 +142,7 @@ view model =
                         ]
 
                 Nothing ->
-                    text "Click here to start"
+                    text "Click here pull data from the window"
             ]
         ]
 

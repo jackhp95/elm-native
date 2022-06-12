@@ -9,9 +9,10 @@ import Native.Internal as Internal exposing (..)
 import Native.Window as Window exposing (..)
 
 
-decode: Node Window a -> Persist -> Result JD.Error a
-decode (Node decoder) (Persist value)= 
+decode : Node Window a -> Persist -> Result JD.Error a
+decode (Node decoder) (Persist value) =
     JD.decodeValue decoder value
+
 
 
 -- --------- --

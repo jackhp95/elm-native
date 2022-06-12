@@ -44,9 +44,21 @@ view model =
         [ Html.form
             [ class "w-min flex-auto flex flex-wrap gap-2 p-4"
             , Native.onChange application (List.concat >> FormChange)
-            , Native.onSubmit application (List.concat >> FormChange)
+            , if List.isEmpty (List.filter (Tuple.first >> (==) "disable_get") model.current) then
+                class ""
+
+              else
+                Native.onSubmit application (List.concat >> FormChange)
             ]
             [ fieldset [ class "flex-auto p-2 rounded border" ]
+                [ legend [] [ text "Disable GET request on Submit" ]
+                , input
+                    [ type_ "checkbox"
+                    , name "disable_get"
+                    ]
+                    []
+                ]
+            , fieldset [ class "flex-auto p-2 rounded border" ]
                 [ legend [] [ text "Choose your favorite monster" ]
                 , input
                     [ type_ "radio"
