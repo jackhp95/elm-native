@@ -33,7 +33,7 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         GotWindow window ->
-            ( Just (Debug.log "internal" window), Cmd.none )
+            ( Just window, Cmd.none )
 
 
 tf : Bool -> String

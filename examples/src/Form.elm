@@ -34,7 +34,7 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         FormChange list ->
-            ( { model | current = Debug.log "internal" list }, Cmd.none )
+            ( { model | current = list }, Cmd.none )
 
 
 view : Model -> Html Msg
@@ -44,7 +44,7 @@ view model =
         [ Html.form
             [ class "w-min flex-auto flex flex-wrap gap-2 p-4"
             , Native.onChange application (List.concat >> FormChange)
-            , if List.isEmpty (List.filter (Tuple.first >> (==) "disable_get") model.current) then
+            , if List.isEmpty (List.filter (Tuple.first >> (==) "disable_GET") model.current) then
                 class ""
 
               else
@@ -54,7 +54,7 @@ view model =
                 [ legend [] [ text "Disable GET request on Submit" ]
                 , input
                     [ type_ "checkbox"
-                    , name "disable_get"
+                    , name "disable_GET"
                     ]
                     []
                 ]
