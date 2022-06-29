@@ -3,7 +3,9 @@ module Native.Window exposing (..)
 import Dict exposing (Dict)
 import Json.Decode as JD
 import Json.Decode.Pipeline as JP
+import Maybe.Extra
 import Native.Internal exposing (..)
+import Url exposing (Url)
 
 
 
@@ -18,8 +20,24 @@ window (Data dec) =
         |> Node
 
 
+type alias FlagArg =
+    { self : { self : { self : { self : JD.Value } } } }
+
+
+fromFlag : FlagArg -> Persist
+fromFlag flag =
+    Persist flag.self.self.self.self
+
+
 
 -- Window Hacks
+
+
+location : Pipe Window Url a
+location (Data dec) =
+    dec
+        |> JP.requiredAt [ "location", "href" ] (JD.andThen (Url.fromString >> Maybe.Extra.unwrap (JD.fail "") JD.succeed) JD.string)
+        |> Data
 
 
 type alias NetworkInformation =

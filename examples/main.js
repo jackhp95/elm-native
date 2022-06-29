@@ -1,16 +1,15 @@
 import "./style.css";
-import {Elm as FORM} from "./src/Form.elm";
-import {Elm as WINDOW} from "./src/Window.elm";
+import { Elm } from "./src/Main.elm";
 
-const window_ = document.querySelector("#window div");
-const form_ = document.querySelector("#form div");
-const apps = [
-  WINDOW.Window.init({
-    node: window_,
-    flags: { window },
-  }),
-  FORM.Form.init({
-    node: form_,
-    flags: { searchParams: [...new URL(location.href).searchParams] },
-  }),
-];
+
+const app = Elm.Main.init({ flags: window });
+
+
+let lastHash = location.hash;
+const scrollToAnchor = () => {
+    requestAnimationFrame(scrollToAnchor)
+    if (lastHash === location.hash) return;
+    document.querySelector(location.hash)?.scrollIntoView?.();
+    lastHash = location.hash;
+}
+requestAnimationFrame(scrollToAnchor);

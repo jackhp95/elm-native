@@ -16,6 +16,15 @@ entry (Data dec) =
         |> Node
 
 
+concatFormEntries : Data Entry (List a) -> Node Entry (List a)
+concatFormEntries (Data dec) =
+    JD.collection (JD.oneOf [ JD.map Just dec, JD.succeed Nothing ])
+        |> JD.map (List.filterMap identity >> List.concat)
+        |> JD.at [ "form", "elements" ]
+        |> internalDecodeEntry
+        |> Node
+
+
 formEntries : Data Entry a -> Node Entry (List a)
 formEntries (Data dec) =
     JD.collection (JD.oneOf [ JD.map Just dec, JD.succeed Nothing ])
