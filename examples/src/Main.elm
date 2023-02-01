@@ -1,7 +1,7 @@
 module Main exposing (main)
 
-import Browser
-import Browser.Navigation
+import Browser exposing (..)
+import Browser.Navigation as Nav
 import Form
 import Html exposing (..)
 import Html.Attributes exposing (..)
@@ -10,10 +10,7 @@ import Msg exposing (Msg(..))
 import Native.Window as Window
 import Url exposing (Url)
 import Window
-import Browser exposing (UrlRequest(..))
-import Browser exposing (..)
-import Browser.Navigation as Nav
-import Url
+
 
 
 -- main : Program () Int Msg
@@ -23,7 +20,7 @@ type alias Model =
     { window : Window.Model, form : Form.Model, key : Nav.Key }
 
 
-initialModel : Window.FlagArg -> Url -> Browser.Navigation.Key -> ( Model, Cmd Msg )
+initialModel : Window.FlagArg -> Url -> Nav.Key -> ( Model, Cmd Msg )
 initialModel flags url navKey =
     let
         ( form, formCmds ) =
@@ -82,7 +79,7 @@ update msg model =
                     ( model
                     , Nav.load url
                     )
-        
+
         UrlChanged url ->
             ( model, Cmd.none )
 
@@ -97,11 +94,16 @@ view model =
             [ ul []
                 [ li []
                     [ a
-                        [ href "https://picocss.com"
+                        [ href ""
                         , attribute "aria-label" "Back home"
                         , class "h-full flex items-center p-4 font-bold tracking-wide"
                         ]
-                        [ text "Elm-Native"
+                        [ img
+                            [ src "/elm-form-logo.svg"
+                            , alt "elm native logo"
+                            ]
+                            []
+                        , text "Elm-Native"
                         ]
                     ]
                 , li []
@@ -110,7 +112,7 @@ view model =
             , ul []
                 [ li []
                     [ a
-                        [ href "https://picocss.com#examples"
+                        [ href "#examples"
                         , class "secondary"
                         ]
                         [ text "Examples" ]
@@ -124,7 +126,7 @@ view model =
                     ]
                 , li []
                     [ a
-                        [ href "https://github.com/picocss/pico"
+                        [ href "https://github.com/jackhp95/elm-native"
                         , class "contrast"
                         , attribute "aria-label" "Pico GitHub repository"
                         ]
@@ -358,7 +360,7 @@ view model =
             , div
                 [ attribute "role" "document"
                 ]
-                [ section  [ id "forms" ]
+                [ section [ id "forms" ]
                     [ node "hgroup"
                         []
                         [ h1 []
@@ -383,8 +385,8 @@ view model =
                         ]
                     , p []
                         [ text "All natives form events are fully customizable and themeable with CSS variables." ]
-                    , article  [ id "FormExample", attribute "aria-label" "Form example" ] [ Html.map FormUpdate (Form.view model.form) ]
-                    , article  [ id "WindowExample", attribute "aria-label" "Window example" ] [ Html.map WindowUpdate (Window.view model.window) ]
+                    , article [ id "FormExample", attribute "aria-label" "Form example" ] [ Html.map FormUpdate (Form.view model.form) ]
+                    , article [ id "WindowExample", attribute "aria-label" "Window example" ] [ Html.map WindowUpdate (Window.view model.window) ]
                     , p []
                         [ text "Disabled and validation states:" ]
                     , article
@@ -702,6 +704,7 @@ view model =
                             ]
                         ]
                     ]
+
                 -- , button
                 --     [ class "contrast switcher theme-switcher"
                 --     , attribute "aria-label" "Turn off dark mode"
