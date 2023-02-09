@@ -1127,7 +1127,7 @@
   --background-color: var(--switch-checked-background-color);
   --border-color: var(--switch-checked-background-color);
 }
-:where([type="checkbox"][role="switch"]:before) {
+:where([type="checkbox"][role="switch"])::before {
   display: block;
   width: calc(1.25em - (var(--border-width) * 2));
   height: 100%;
@@ -1139,7 +1139,7 @@
 :where([type="checkbox"][role="switch"]:checked) {
   background-image: none;
 }
-:where([type="checkbox"][role="switch"]:checked::before) {
+:where([type="checkbox"][role="switch"]:checked)::before {
   margin-left: calc(1.125em - var(--border-width));
   -webkit-margin-start: calc(1.125em - var(--border-width));
   margin-inline-start: calc(1.125em - var(--border-width));
@@ -1185,15 +1185,21 @@
 :where(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"])[type="time"]) {
   background-image: var(--icon-time);
 }
-:where([type="date"]::-webkit-calendar-picker-indicator, [type="datetime-local"]::-webkit-calendar-picker-indicator, [type="month"]::-webkit-calendar-picker-indicator, [type="time"]::-webkit-calendar-picker-indicator, [type="week"]::-webkit-calendar-picker-indicator) {
-  width: var(--icon-width);
-  margin-right: calc(var(--icon-width) * -1);
-  margin-left: var(--icon-position);
+:where([type="date"], [type="datetime-local"], [type="month"], [type="time"], [type="week"])::-webkit-calendar-picker-indicator {
+  position: absolute;
+  height: 100%;
+  width: auto;
+  aspect-ratio: 1/1;
+  inset-block: 0;
+  inset-inline-end: 0;
   opacity: 0;
 }
 [dir="rtl"]
   :where(:is([type="date"], [type="datetime-local"], [type="month"], [type="time"], [type="week"])) {
   text-align: right;
+}
+:where(:is([type="date"], [type="datetime-local"], [type="month"], [type="time"], [type="week"])) {
+  will-change: transform;
 }
 :where([type="file"]) {
   --color: var(--muted-color);

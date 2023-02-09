@@ -71,7 +71,7 @@ view model =
             , div [] [ label [] [ text "input[type='email']" ], input [ name "input[type='email']", type_ "email" ] [] ]
             , div [] [ label [] [ text "input[type='file']" ], input [ name "input[type='file']", type_ "file" ] [] ]
             , div [] [ label [] [ text "input[type='hidden']" ], input [ name "input[type='hidden']", type_ "hidden" ] [] ]
-            , div [] [ label [] [ text "input[type='image']" ], input [ name "input[type='image']", type_ "image" ] [] ]
+            , div [] [ label [] [ text "input[type='image']" ], input [ name "input[type='image']", type_ "image", src "/elm-form-logo.svg" ] [] ]
             , div [] [ label [] [ text "input[type='month']" ], input [ name "input[type='month']", type_ "month" ] [] ]
             , div [] [ label [] [ text "input[type='number']" ], input [ name "input[type='number']", type_ "number" ] [] ]
             , div [] [ label [] [ text "input[type='password']" ], input [ name "input[type='password']", type_ "password" ] [] ]
