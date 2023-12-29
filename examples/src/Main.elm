@@ -251,7 +251,7 @@ view model =
                             , text "Select all"
                             ]
                         ]
-                    , p [] [ text "Others input types:" ]
+                    , p [] [ text "Other input types:" ]
                     , article [ attribute "aria-label" "Search, file browser, range slider, date, time, color examples" ]
                         [ input [ type_ "search", id "search", name "search", placeholder "Search" ]
                             []
