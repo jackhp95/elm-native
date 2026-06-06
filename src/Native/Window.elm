@@ -80,19 +80,22 @@ deviceMemory =
 doNotTrack : Pipe Window (Maybe Bool) a
 doNotTrack =
     requiredAtPipe [ "navigator", "doNotTrack" ]
-        (JD.string
-            |> JD.map
-                (\str ->
-                    case str of
-                        "0" ->
-                            Just False
+        (JD.oneOf
+            [ JD.string
+                |> JD.map
+                    (\str ->
+                        case str of
+                            "0" ->
+                                Just False
 
-                        "1" ->
-                            Just True
+                            "1" ->
+                                Just True
 
-                        _ ->
-                            Nothing
-                )
+                            _ ->
+                                Nothing
+                    )
+            , JD.null Nothing
+            ]
         )
 
 

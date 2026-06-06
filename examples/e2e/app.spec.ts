@@ -1,17 +1,6 @@
 import { test, expect } from "@playwright/test";
 
 test.beforeEach(async ({ page }) => {
-  // navigator.doNotTrack is null in headless Chromium but the Elm decoder
-  // expects a string. Patch it so the window decoder chain doesn't fail.
-  await page.addInitScript(() => {
-    if (navigator.doNotTrack === null) {
-      Object.defineProperty(navigator, "doNotTrack", {
-        value: "unspecified",
-        configurable: true,
-      });
-    }
-  });
-
   await page.goto("/");
 });
 
