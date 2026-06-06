@@ -7,7 +7,7 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Json.Decode
 import Json.Encode
-import Msg exposing (Msg(..))
+import Msg
 import Native.Window as Window
 import Url exposing (Url)
 import Window

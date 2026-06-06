@@ -1,4 +1,13 @@
-module Native.Entry exposing (..)
+module Native.Entry exposing
+    ( entry, concatFormEntries, formEntries, allFormEntries
+    , nonEmptyString
+    , isActiveElement, id, textContent, type_, tagName, name
+    , formAction, formEnctype, formMethod, formNoValidate
+    , isConnected, files, value, valueAsDate, valueAsInt, valueAsFloat
+    , defaultValue, checked, defaultChecked, multiple
+    , required, readOnly, hidden, disabled
+    , willValidate, validationMessage, validity, Validity
+    )
 
 import Json.Decode as JD
 import Json.Decode.Extra as JD
@@ -11,37 +20,42 @@ import Native.Internal exposing (..)
 
 
 entry : Data Entry a -> Node Entry a
-entry (Data dec) =
-    internalDecodeEntry dec
-        |> Node
+entry =
+    buildNode internalDecodeEntry
 
 
 concatFormEntries : Data Entry (List a) -> Node Entry (List a)
-concatFormEntries (Data dec) =
-    JD.collection (JD.oneOf [ JD.map Just dec, JD.succeed Nothing ])
-        |> JD.map (List.filterMap identity >> List.concat)
-        |> JD.at [ "form", "elements" ]
-        |> internalDecodeEntry
-        |> Node
+concatFormEntries =
+    buildNode
+        (\dec ->
+            JD.collection (JD.oneOf [ JD.map Just dec, JD.succeed Nothing ])
+                |> JD.map (List.filterMap identity >> List.concat)
+                |> JD.at [ "form", "elements" ]
+                |> internalDecodeEntry
+        )
 
 
 formEntries : Data Entry a -> Node Entry (List a)
-formEntries (Data dec) =
-    JD.collection (JD.oneOf [ JD.map Just dec, JD.succeed Nothing ])
-        |> JD.map (List.filterMap identity)
-        |> JD.at [ "form", "elements" ]
-        |> internalDecodeEntry
-        |> Node
+formEntries =
+    buildNode
+        (\dec ->
+            JD.collection (JD.oneOf [ JD.map Just dec, JD.succeed Nothing ])
+                |> JD.map (List.filterMap identity)
+                |> JD.at [ "form", "elements" ]
+                |> internalDecodeEntry
+        )
 
 
 allFormEntries : Data Entry a -> Node Entry (List a)
-allFormEntries (Data dec) =
-    JD.collection (JD.oneOf [ JD.map Just dec, JD.succeed Nothing ])
-        |> JD.map (List.filterMap identity)
-        |> JD.at [ "elements" ]
-        |> internalDecodeAllForms
-        |> JD.map List.concat
-        |> Node
+allFormEntries =
+    buildNode
+        (\dec ->
+            JD.collection (JD.oneOf [ JD.map Just dec, JD.succeed Nothing ])
+                |> JD.map (List.filterMap identity)
+                |> JD.at [ "elements" ]
+                |> internalDecodeAllForms
+                |> JD.map List.concat
+        )
 
 
 
@@ -62,212 +76,158 @@ nonEmptyString =
 
 
 isActiveElement : Pipe Entry Bool a
-isActiveElement (Data dec) =
-    dec
-        |> JP.custom
-            (JD.oneOf
-                [ JD.map2 (==)
-                    (JD.at [ "ownerDocument", "activeElement", "name" ] nonEmptyString)
-                    (JD.field "name" nonEmptyString)
-                , JD.succeed False
-                ]
-            )
-        |> Data
+isActiveElement =
+    customPipe
+        (JD.oneOf
+            [ JD.map2 (==)
+                (JD.at [ "ownerDocument", "activeElement", "name" ] nonEmptyString)
+                (JD.field "name" nonEmptyString)
+            , JD.succeed False
+            ]
+        )
 
 
 id : Pipe Entry String a
-id (Data dec) =
-    dec
-        |> JP.required "id" JD.string
-        |> Data
+id =
+    requiredPipe "id" JD.string
 
 
 textContent : Pipe Entry String a
-textContent (Data dec) =
-    dec
-        |> JP.required "textContent" JD.string
-        |> Data
+textContent =
+    requiredPipe "textContent" JD.string
 
 
 type_ : Pipe Entry String a
-type_ (Data dec) =
-    dec
-        |> JP.required "type" JD.string
-        |> Data
+type_ =
+    requiredPipe "type" JD.string
 
 
 tagName : Pipe Entry String a
-tagName (Data dec) =
-    dec
-        |> JP.required "tagName" JD.string
-        |> Data
+tagName =
+    requiredPipe "tagName" JD.string
 
 
 name : Pipe Entry String a
-name (Data dec) =
-    dec
-        |> JP.required "name" JD.string
-        |> Data
+name =
+    requiredPipe "name" JD.string
 
 
 formAction : Pipe Entry String a
-formAction (Data dec) =
-    dec
-        |> JP.required "formAction" JD.string
-        |> Data
+formAction =
+    requiredPipe "formAction" JD.string
 
 
 formEnctype : Pipe Entry String a
-formEnctype (Data dec) =
-    dec
-        |> JP.required "formEnctype" JD.string
-        |> Data
+formEnctype =
+    requiredPipe "formEnctype" JD.string
 
 
 formMethod : Pipe Entry String a
-formMethod (Data dec) =
-    dec
-        |> JP.required "formMethod" JD.string
-        |> Data
+formMethod =
+    requiredPipe "formMethod" JD.string
 
 
 formNoValidate : Pipe Entry Bool a
-formNoValidate (Data dec) =
-    dec
-        |> JP.required "formNoValidate" JD.bool
-        |> Data
+formNoValidate =
+    requiredPipe "formNoValidate" JD.bool
 
 
 isConnected : Pipe Entry Bool a
-isConnected (Data dec) =
-    dec
-        |> JP.required "isConnected" JD.bool
-        |> Data
+isConnected =
+    requiredPipe "isConnected" JD.bool
 
 
 files : Pipe Entry JD.Value a
-files (Data dec) =
-    dec
-        |> JP.required "files" JD.value
-        |> Data
+files =
+    requiredPipe "files" JD.value
 
 
 value : Pipe Entry String a
-value (Data dec) =
-    dec
-        |> JP.required "value" JD.string
-        |> Data
+value =
+    requiredPipe "value" JD.string
 
 
 valueAsDate : Pipe Entry String a
-valueAsDate (Data dec) =
-    dec
-        |> JP.required "valueAsDate" JD.string
-        |> Data
+valueAsDate =
+    requiredPipe "valueAsDate" JD.string
 
 
 valueAsInt : Pipe Entry Int a
-valueAsInt (Data dec) =
-    dec
-        |> JP.required "valueAsNumber" JD.int
-        |> Data
+valueAsInt =
+    requiredPipe "valueAsNumber" JD.int
 
 
 valueAsFloat : Pipe Entry Float a
-valueAsFloat (Data dec) =
-    dec
-        |> JP.required "valueAsNumber" JD.float
-        |> Data
+valueAsFloat =
+    requiredPipe "valueAsNumber" JD.float
 
 
 defaultValue : Pipe Entry String a
-defaultValue (Data dec) =
-    dec
-        |> JP.required "defaultValue" JD.string
-        |> Data
+defaultValue =
+    requiredPipe "defaultValue" JD.string
 
 
 checked : Pipe Entry (Maybe Bool) a
-checked (Data dec) =
-    dec
-        |> JP.optional "checked" (JD.map Just JD.bool) Nothing
-        |> Data
+checked =
+    optionalPipe "checked" (JD.map Just JD.bool) Nothing
 
 
 defaultChecked : Pipe Entry (Maybe Bool) a
-defaultChecked (Data dec) =
-    dec
-        |> JP.optional "defaultChecked" (JD.map Just JD.bool) Nothing
-        |> Data
+defaultChecked =
+    optionalPipe "defaultChecked" (JD.map Just JD.bool) Nothing
 
 
 multiple : Pipe Entry (Maybe Bool) a
-multiple (Data dec) =
-    dec
-        |> JP.optional "multiple" (JD.map Just JD.bool) Nothing
-        |> Data
+multiple =
+    optionalPipe "multiple" (JD.map Just JD.bool) Nothing
 
 
 required : Pipe Entry Bool a
-required (Data dec) =
-    dec
-        |> JP.required "required" JD.bool
-        |> Data
+required =
+    requiredPipe "required" JD.bool
 
 
 readOnly : Pipe Entry Bool a
-readOnly (Data dec) =
-    dec
-        |> JP.required "readOnly" JD.bool
-        |> Data
+readOnly =
+    requiredPipe "readOnly" JD.bool
 
 
 hidden : Pipe Entry Bool a
-hidden (Data dec) =
-    dec
-        |> JP.required "hidden" JD.bool
-        |> Data
+hidden =
+    requiredPipe "hidden" JD.bool
 
 
 disabled : Pipe Entry Bool a
-disabled (Data dec) =
-    dec
-        |> JP.required "disabled" JD.bool
-        |> Data
+disabled =
+    requiredPipe "disabled" JD.bool
 
 
 willValidate : Pipe Entry Bool a
-willValidate (Data dec) =
-    dec
-        |> JP.required "willValidate" JD.bool
-        |> Data
+willValidate =
+    requiredPipe "willValidate" JD.bool
 
 
 validationMessage : Pipe Entry String a
-validationMessage (Data dec) =
-    dec
-        |> JP.required "validationMessage" JD.string
-        |> Data
+validationMessage =
+    requiredPipe "validationMessage" JD.string
 
 
 validity : Pipe Entry Validity b
-validity (Data dec) =
-    dec
-        |> JP.required "validity"
-            (JD.succeed Validity
-                |> JP.required "badInput" JD.bool
-                |> JP.required "customError" JD.bool
-                |> JP.required "patternMismatch" JD.bool
-                |> JP.required "rangeOverflow" JD.bool
-                |> JP.required "rangeUnderflow" JD.bool
-                |> JP.required "stepMismatch" JD.bool
-                |> JP.required "tooLong" JD.bool
-                |> JP.required "tooShort" JD.bool
-                |> JP.required "typeMismatch" JD.bool
-                |> JP.required "valid" JD.bool
-                |> JP.required "valueMissing" JD.bool
-            )
-        |> Data
+validity =
+    requiredPipe "validity"
+        (JD.succeed Validity
+            |> JP.required "badInput" JD.bool
+            |> JP.required "customError" JD.bool
+            |> JP.required "patternMismatch" JD.bool
+            |> JP.required "rangeOverflow" JD.bool
+            |> JP.required "rangeUnderflow" JD.bool
+            |> JP.required "stepMismatch" JD.bool
+            |> JP.required "tooLong" JD.bool
+            |> JP.required "tooShort" JD.bool
+            |> JP.required "typeMismatch" JD.bool
+            |> JP.required "valid" JD.bool
+            |> JP.required "valueMissing" JD.bool
+        )
 
 
 type alias Validity =

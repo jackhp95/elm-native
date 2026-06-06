@@ -1,4 +1,7 @@
-module Native exposing (..)
+module Native exposing
+    ( decode
+    , on, onInput, onChange, onSubmit, onReset, onFocus, onBlur
+    )
 
 import Html exposing (Attribute)
 import Html.Events as Events exposing (custom)
@@ -10,8 +13,8 @@ import Native.Window as Window exposing (..)
 
 
 decode : Node Window a -> Persist -> Result JD.Error a
-decode (Node decoder) (Persist value) =
-    JD.decodeValue decoder value
+decode node persist =
+    JD.decodeValue (runNode node) (runPersist persist)
 
 
 
@@ -22,8 +25,8 @@ decode (Node decoder) (Persist value) =
 
 
 on : String -> Node native a -> (a -> msg) -> Attribute msg
-on event (Node decoder) msg =
-    decoder
+on event node msg =
+    runNode node
         |> JD.map
             (\result ->
                 { message = msg result

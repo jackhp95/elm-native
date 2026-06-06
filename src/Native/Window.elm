@@ -1,4 +1,19 @@
-module Native.Window exposing (..)
+module Native.Window exposing
+    ( window, FlagArg, fromFlag
+    , location
+    , networkInformation, NetworkInformation
+    , deviceMemory, doNotTrack, hardwareConcurrency
+    , language, languages, maxTouchPoints, onLine
+    , pdfViewerEnabled, platform, hasBeenActive, isActive
+    , userAgent, userAgentData, UserAgentData
+    , vendor, vendorSub
+    , virtualKeyboard, VirtualKeyboard, DOMRect, domRect
+    , devicePixelRatio, localStorage
+    , locationbar, menubar, scrollbars, styleMedia, toolbar
+    , speechSynthesis, SpeechSynthesis
+    , performance, Performance, MemoryInfo, PerformanceTiming
+    , memoryInfo, performanceTiming
+    )
 
 import Dict exposing (Dict)
 import Json.Decode as JD
@@ -13,11 +28,8 @@ import Url exposing (Url)
 
 
 window : Data Window a -> Node Window a
-window (Data dec) =
-    dec
-        |> JD.at [ "ownerDocument", "defaultView" ]
-        |> internalDecodeEntry
-        |> Node
+window =
+    buildNode (\dec -> dec |> JD.at [ "ownerDocument", "defaultView" ] |> internalDecodeEntry)
 
 
 type alias FlagArg =
@@ -26,7 +38,7 @@ type alias FlagArg =
 
 fromFlag : FlagArg -> Persist
 fromFlag flag =
-    Persist flag.self.self.self.self
+    makePersist flag.self.self.self.self
 
 
 
@@ -34,10 +46,9 @@ fromFlag flag =
 
 
 location : Pipe Window Url a
-location (Data dec) =
-    dec
-        |> JP.requiredAt [ "location", "href" ] (JD.andThen (Url.fromString >> Maybe.Extra.unwrap (JD.fail "") JD.succeed) JD.string)
-        |> Data
+location =
+    requiredAtPipe [ "location", "href" ]
+        (JD.andThen (Url.fromString >> Maybe.Extra.unwrap (JD.fail "") JD.succeed) JD.string)
 
 
 type alias NetworkInformation =
@@ -49,114 +60,88 @@ type alias NetworkInformation =
 
 
 networkInformation : Pipe Window NetworkInformation a
-networkInformation (Data dec) =
-    dec
-        |> (JD.succeed NetworkInformation
-                |> JP.required "downlink" JD.float
-                |> JP.required "effectiveType" JD.string
-                |> JP.required "rtt" JD.float
-                |> JP.required "saveData" JD.bool
-                |> JP.requiredAt [ "navigator", "connection" ]
-           )
-        |> Data
+networkInformation =
+    requiredAtPipe [ "navigator", "connection" ]
+        (JD.map4 NetworkInformation
+            (JD.field "downlink" JD.float)
+            (JD.field "effectiveType" JD.string)
+            (JD.field "rtt" JD.float)
+            (JD.field "saveData" JD.bool)
+        )
 
 
 deviceMemory : Pipe Window Int a
-deviceMemory (Data dec) =
-    dec
-        |> JP.requiredAt [ "navigator", "deviceMemory" ] JD.int
-        |> Data
+deviceMemory =
+    requiredAtPipe [ "navigator", "deviceMemory" ] JD.int
 
 
 doNotTrack : Pipe Window (Maybe Bool) a
-doNotTrack (Data dec) =
-    dec
-        |> JP.requiredAt [ "navigator", "doNotTrack" ]
-            (JD.string
-                |> JD.map
-                    (\str ->
-                        case str of
-                            "0" ->
-                                Just False
+doNotTrack =
+    requiredAtPipe [ "navigator", "doNotTrack" ]
+        (JD.string
+            |> JD.map
+                (\str ->
+                    case str of
+                        "0" ->
+                            Just False
 
-                            "1" ->
-                                Just True
+                        "1" ->
+                            Just True
 
-                            _ ->
-                                Nothing
-                    )
-            )
-        |> Data
+                        _ ->
+                            Nothing
+                )
+        )
 
 
 hardwareConcurrency : Pipe Window Int a
-hardwareConcurrency (Data dec) =
-    dec
-        |> JP.requiredAt [ "navigator", "hardwareConcurrency" ] JD.int
-        |> Data
+hardwareConcurrency =
+    requiredAtPipe [ "navigator", "hardwareConcurrency" ] JD.int
 
 
 language : Pipe Window String a
-language (Data dec) =
-    dec
-        |> JP.requiredAt [ "navigator", "language" ] JD.string
-        |> Data
+language =
+    requiredAtPipe [ "navigator", "language" ] JD.string
 
 
 languages : Pipe Window (List String) a
-languages (Data dec) =
-    dec
-        |> JP.requiredAt [ "navigator", "languages" ] (JD.list JD.string)
-        |> Data
+languages =
+    requiredAtPipe [ "navigator", "languages" ] (JD.list JD.string)
 
 
 maxTouchPoints : Pipe Window Int a
-maxTouchPoints (Data dec) =
-    dec
-        |> JP.requiredAt [ "navigator", "maxTouchPoints" ] JD.int
-        |> Data
+maxTouchPoints =
+    requiredAtPipe [ "navigator", "maxTouchPoints" ] JD.int
 
 
 onLine : Pipe Window Bool a
-onLine (Data dec) =
-    dec
-        |> JP.requiredAt [ "navigator", "onLine" ] JD.bool
-        |> Data
+onLine =
+    requiredAtPipe [ "navigator", "onLine" ] JD.bool
 
 
 pdfViewerEnabled : Pipe Window Bool a
-pdfViewerEnabled (Data dec) =
-    dec
-        |> JP.requiredAt [ "navigator", "pdfViewerEnabled" ] JD.bool
-        |> Data
+pdfViewerEnabled =
+    requiredAtPipe [ "navigator", "pdfViewerEnabled" ] JD.bool
 
 
 platform : Pipe Window String a
-platform (Data dec) =
-    dec
-        |> JP.requiredAt [ "navigator", "platform" ] JD.string
-        |> Data
+platform =
+    requiredAtPipe [ "navigator", "platform" ] JD.string
 
 
 hasBeenActive : Pipe Window Bool a
-hasBeenActive (Data dec) =
-    dec
-        |> JP.requiredAt [ "navigator", "userActivation", "hasBeenActive" ] JD.bool
-        |> Data
+hasBeenActive =
+    requiredAtPipe [ "navigator", "userActivation", "hasBeenActive" ] JD.bool
 
 
 isActive : Pipe Window Bool a
-isActive (Data dec) =
-    dec
-        |> JP.requiredAt [ "navigator", "userActivation", "isActive" ] JD.bool
-        |> Data
+isActive =
+    requiredAtPipe [ "navigator", "userActivation", "isActive" ] JD.bool
 
 
 userAgent : Pipe Window String a
-userAgent (Data dec) =
-    dec
-        |> JP.requiredAt [ "navigator", "userAgent" ] JD.string
-        |> Data
+userAgent =
+    requiredAtPipe [ "navigator", "userAgent" ] JD.string
 
 
 type alias UserAgentData =
@@ -167,40 +152,32 @@ type alias UserAgentData =
 
 
 userAgentData : Pipe Window UserAgentData a
-userAgentData (Data dec) =
-    dec
-        |> (JD.map3 UserAgentData
-                (JD.field "brands" (JD.list (JD.map2 (\b v -> { brand = b, version = v }) (JD.field "brand" JD.string) (JD.field "version" JD.string))))
-                (JD.field "mobile" JD.bool)
-                (JD.field "platform" JD.string)
-                |> JP.requiredAt [ "navigator", "userAgentData" ]
-           )
-        |> Data
+userAgentData =
+    requiredAtPipe [ "navigator", "userAgentData" ]
+        (JD.map3 UserAgentData
+            (JD.field "brands" (JD.list (JD.map2 (\b v -> { brand = b, version = v }) (JD.field "brand" JD.string) (JD.field "version" JD.string))))
+            (JD.field "mobile" JD.bool)
+            (JD.field "platform" JD.string)
+        )
 
 
 vendor : Pipe Window String a
-vendor (Data dec) =
-    dec
-        |> JP.requiredAt [ "navigator", "vendor" ] JD.string
-        |> Data
+vendor =
+    requiredAtPipe [ "navigator", "vendor" ] JD.string
 
 
 vendorSub : Pipe Window String a
-vendorSub (Data dec) =
-    dec
-        |> JP.requiredAt [ "navigator", "vendorSub" ] JD.string
-        |> Data
+vendorSub =
+    requiredAtPipe [ "navigator", "vendorSub" ] JD.string
 
 
 virtualKeyboard : Pipe Window VirtualKeyboard a
-virtualKeyboard (Data dec) =
-    dec
-        |> (JD.map2 VirtualKeyboard
-                (JD.field "boundingRect" domRect)
-                (JD.field "overlaysContent" JD.bool)
-                |> JP.requiredAt [ "navigator", "virtualKeyboard" ]
-           )
-        |> Data
+virtualKeyboard =
+    requiredAtPipe [ "navigator", "virtualKeyboard" ]
+        (JD.map2 VirtualKeyboard
+            (JD.field "boundingRect" domRect)
+            (JD.field "overlaysContent" JD.bool)
+        )
 
 
 type alias VirtualKeyboard =
@@ -235,10 +212,8 @@ domRect =
 
 
 devicePixelRatio : Pipe Window Float a
-devicePixelRatio (Data dec) =
-    dec
-        |> JP.required "devicePixelRatio" JD.float
-        |> Data
+devicePixelRatio =
+    requiredPipe "devicePixelRatio" JD.float
 
 
 localStorage : Pipe Window (Dict String String) a
@@ -247,38 +222,28 @@ localStorage =
 
 
 locationbar : Pipe Window Bool a
-locationbar (Data dec) =
-    dec
-        |> JP.requiredAt [ "locationbar", "visible" ] JD.bool
-        |> Data
+locationbar =
+    requiredAtPipe [ "locationbar", "visible" ] JD.bool
 
 
 menubar : Pipe Window Bool a
-menubar (Data dec) =
-    dec
-        |> JP.requiredAt [ "menubar", "visible" ] JD.bool
-        |> Data
+menubar =
+    requiredAtPipe [ "menubar", "visible" ] JD.bool
 
 
 scrollbars : Pipe Window Bool a
-scrollbars (Data dec) =
-    dec
-        |> JP.requiredAt [ "scrollbars", "visible" ] JD.bool
-        |> Data
+scrollbars =
+    requiredAtPipe [ "scrollbars", "visible" ] JD.bool
 
 
 styleMedia : Pipe Window String a
-styleMedia (Data dec) =
-    dec
-        |> JP.requiredAt [ "styleMedia", "type" ] JD.string
-        |> Data
+styleMedia =
+    requiredAtPipe [ "styleMedia", "type" ] JD.string
 
 
 toolbar : Pipe Window Bool a
-toolbar (Data dec) =
-    dec
-        |> JP.requiredAt [ "toolbar", "visible" ] JD.bool
-        |> Data
+toolbar =
+    requiredAtPipe [ "toolbar", "visible" ] JD.bool
 
 
 type alias SpeechSynthesis =
@@ -289,28 +254,24 @@ type alias SpeechSynthesis =
 
 
 speechSynthesis : Pipe Window SpeechSynthesis a
-speechSynthesis (Data dec) =
-    dec
-        |> (JD.map3 SpeechSynthesis
-                (JD.field "paused" JD.bool)
-                (JD.field "pending" JD.bool)
-                (JD.field "speaking" JD.bool)
-                |> JP.required "speechSynthesis"
-           )
-        |> Data
+speechSynthesis =
+    requiredPipe "speechSynthesis"
+        (JD.map3 SpeechSynthesis
+            (JD.field "paused" JD.bool)
+            (JD.field "pending" JD.bool)
+            (JD.field "speaking" JD.bool)
+        )
 
 
 performance : Pipe Window Performance a
-performance (Data dec) =
-    dec
-        |> (JD.map4 Performance
-                (JD.at [ "eventCounts", "size" ] JD.int)
-                (JD.field "memory" memoryInfo)
-                (JD.field "timeOrigin" JD.float)
-                (JD.field "timing" performanceTiming)
-                |> JP.required "performance"
-           )
-        |> Data
+performance =
+    requiredPipe "performance"
+        (JD.map4 Performance
+            (JD.at [ "eventCounts", "size" ] JD.int)
+            (JD.field "memory" memoryInfo)
+            (JD.field "timeOrigin" JD.float)
+            (JD.field "timing" performanceTiming)
+        )
 
 
 type alias Performance =

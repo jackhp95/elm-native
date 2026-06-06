@@ -1,4 +1,24 @@
-module Native.Internal exposing (..)
+module Native.Internal exposing
+    ( Entry, Form, Window
+    , Node, Data, Pipe, Persist
+    , buildNode, runNode, makePersist, runPersist
+    , internalDecodeEntry, internalDecodeAllForms
+    , string, bool, int, float
+    , nullable, list, array, dict, keyValuePairs
+    , oneOrMore, field, at, index
+    , maybe, oneOf
+    , map, map2, map3, map4, map5, map6, map7, map8
+    , succeed, andThen, lazy, value, null
+    , required, requiredAt, optional, optionalAt
+    , hardcoded, custom, resolve
+    , requiredPipe, requiredAtPipe, optionalPipe, customPipe
+    , datetime, url, andMap, when
+    , collection, sequence, combine, indexedList
+    , keys, set, dict2, withDefault
+    , optionalField, optionalNullableField
+    , fromMaybe, fromResult, parseInt, parseFloat
+    , doubleEncoded
+    )
 
 import Array exposing (Array)
 import Dict exposing (Dict)
@@ -43,6 +63,26 @@ type alias Pipe native a b =
 
 type Persist
     = Persist JD.Value
+
+
+buildNode : (JD.Decoder a -> JD.Decoder b) -> Data native a -> Node native b
+buildNode transform (Data dec) =
+    Node (transform dec)
+
+
+runNode : Node native a -> JD.Decoder a
+runNode (Node dec) =
+    dec
+
+
+makePersist : JD.Value -> Persist
+makePersist =
+    Persist
+
+
+runPersist : Persist -> JD.Value
+runPersist (Persist v) =
+    v
 
 
 
@@ -258,6 +298,30 @@ resolve : Data native (Data native a) -> Data native a
 resolve (Data a) =
     JD.andThen (\(Data b) -> b) a
         |> Data
+
+
+
+-- Pipe Helpers
+
+
+requiredPipe : String -> JD.Decoder a -> Pipe native a b
+requiredPipe str decoder (Data dec) =
+    Data (JP.required str decoder dec)
+
+
+requiredAtPipe : List String -> JD.Decoder a -> Pipe native a b
+requiredAtPipe strs decoder (Data dec) =
+    Data (JP.requiredAt strs decoder dec)
+
+
+optionalPipe : String -> JD.Decoder a -> a -> Pipe native a b
+optionalPipe str decoder default_ (Data dec) =
+    Data (JP.optional str decoder default_ dec)
+
+
+customPipe : JD.Decoder a -> Pipe native a b
+customPipe decoder (Data dec) =
+    Data (JP.custom decoder dec)
 
 
 

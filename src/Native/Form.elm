@@ -1,7 +1,9 @@
-module Native.Form exposing (..)
+module Native.Form exposing
+    ( form, allForms
+    , name, id, target, method, action, enctype, novalidate
+    )
 
 import Json.Decode as JD
-import Json.Decode.Pipeline as JP
 import Native.Internal exposing (..)
 
 
@@ -10,16 +12,13 @@ import Native.Internal exposing (..)
 
 
 form : Data Form a -> Node Form a
-form (Data dec) =
-    JD.field "form" dec
-        |> internalDecodeEntry
-        |> Node
+form =
+    buildNode (\dec -> JD.field "form" dec |> internalDecodeEntry)
 
 
 allForms : Data Form a -> Node Form (List a)
-allForms (Data dec) =
-    internalDecodeAllForms dec
-        |> Node
+allForms =
+    buildNode internalDecodeAllForms
 
 
 
@@ -27,49 +26,35 @@ allForms (Data dec) =
 
 
 name : Pipe Form String a
-name (Data dec) =
-    dec
-        |> JP.required "name" JD.string
-        |> Data
+name =
+    requiredPipe "name" JD.string
 
 
 id : Pipe Form String a
-id (Data dec) =
-    dec
-        |> JP.required "id" JD.string
-        |> Data
+id =
+    requiredPipe "id" JD.string
 
 
 target : Pipe Form String a
-target (Data dec) =
-    dec
-        |> JP.required "target" JD.string
-        |> Data
+target =
+    requiredPipe "target" JD.string
 
 
 method : Pipe Form String a
-method (Data dec) =
-    dec
-        |> JP.required "method" JD.string
-        |> Data
+method =
+    requiredPipe "method" JD.string
 
 
 action : Pipe Form String a
-action (Data dec) =
-    dec
-        |> JP.required "action" JD.string
-        |> Data
+action =
+    requiredPipe "action" JD.string
 
 
 enctype : Pipe Form String a
-enctype (Data dec) =
-    dec
-        |> JP.required "enctype" JD.string
-        |> Data
+enctype =
+    requiredPipe "enctype" JD.string
 
 
 novalidate : Pipe Form Bool a
-novalidate (Data dec) =
-    dec
-        |> JP.required "novalidate" JD.bool
-        |> Data
+novalidate =
+    requiredPipe "novalidate" JD.bool
