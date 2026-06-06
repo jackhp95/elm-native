@@ -32,6 +32,8 @@ window =
     buildNode (\dec -> dec |> JD.at [ "ownerDocument", "defaultView" ] |> internalDecodeEntry)
 
 
+-- Elm wraps raw JS objects passed as flags in nested { self } records.
+-- Passing `window` as flags (see main.js) requires unwrapping 4 levels.
 type alias FlagArg =
     { self : { self : { self : { self : JD.Value } } } }
 
@@ -218,7 +220,7 @@ devicePixelRatio =
 
 localStorage : Pipe Window (Dict String String) a
 localStorage =
-    required "localStorage" (dict string)
+    requiredPipe "localStorage" (JD.dict JD.string)
 
 
 locationbar : Pipe Window Bool a
