@@ -47,7 +47,8 @@ view : Model -> Html Msg
 view model =
     div [ class "grid" ]
         [ Html.form
-            [ Native.onChange Enctype.application FormChange
+            [ attribute "data-testid" "main-form"
+            , Native.onChange Enctype.application FormChange
             , if List.isEmpty (List.filter (Tuple.first >> (==) "disable_GET") model.current) then
                 class ""
 
@@ -99,6 +100,6 @@ view model =
             , div [] [ label [] [ text "button[name][value][type='submit']" ], button [ type_ "submit", name "button[name][value][type='submit']", value "button[name][value][type='submit']" ] [ text "button[value][type='submit']" ] ]
             , datalist [ id "datalist" ] [ option [] [ text "1st text" ], option [] [ text "2nd text" ], option [] [ text "3rd text" ], option [] [ text "4th text" ] ]
             ]
-        -- , div [] [ output [] [ text "Query Values \n? ", model.init |> SearchParams.toString |> text ] ]
-        -- , div [] [ output [] [ text "Current Values \n? ", model.current |> SearchParams.toString |> text ] ]
+        , div [ attribute "data-testid" "form-init-values" ] [ output [] [ text (model.init |> SearchParams.toString) ] ]
+        , div [ attribute "data-testid" "form-current-values" ] [ output [] [ text (model.current |> SearchParams.toString) ] ]
         ]
