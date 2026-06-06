@@ -81,6 +81,13 @@ test.describe("Form", () => {
     await expect(current).toContainText("textarea=new content");
   });
 
+  test("range input captures value on change", async ({ page }) => {
+    const range = page.locator('input[name="input[type=\'range\']"]');
+    await range.fill("75");
+    const current = page.getByTestId("form-current-values");
+    await expect(current).toContainText("input[type='range']=75");
+  });
+
   test("disable_GET checkbox toggles submit behavior", async ({ page }) => {
     const checkbox = page.locator('input[name="disable_GET"]');
     await checkbox.check();
